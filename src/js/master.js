@@ -1,54 +1,59 @@
 /**
  * Vitaliy V. Makeev
  * w.makeev@gmail.com
- * Date: 22.12.13
+ * Date: 04.01.14
  */
 
-//TODO Сбой при переходе в админку (нет хеша)
+var constants = require('./const');
 
 var _ = require('lodash'),
-    domjs = require('domjs/lib/html5')(document),
-    docEditorMenuBar = require('./injections/doc/editor/menu-bar/menu-bar');
+    Backbone = require('backbone');
 
-var EventEmitter2 = require('eventemitter2').EventEmitter2;
+var Logger = require('./logger'),
+    Router = require('./router');
 
-var master;
-
-module.exports = (function () {
-    var taistUtils = null,
-        log = null;
+var Master = {},
+    router,
+    log;
 
 
-    return {
 
-        start: function (utilities, entryPoint) {
 
-            taistUtils = utilities;
-            log = taistUtils.log;
+module.exports = {
 
-            //TODO start запускается для каждого изменения hash?
-            if (app.getMaster()) {
-                log(app.getName() + ' уже инициализирован.');
-                return;
-            }
+    createMaster: function (opt) {
 
-            log('[' + app.getName() + '] Инициализация ..');
+        require('./../../vendor/superfish/superfish');
+        require('./../../vendor/superfish/hoverIntent');
 
-            require('./../../vendor/superfish/superfish');
-            require('./../../vendor/superfish/hoverIntent');
+        log = Logger.createLogger(opt.log);
 
-            master = createMaster();
-            master.entryPoint = entryPoint;
-            app.setMaster(master);
+        _.extend(Master, {
+            log: log
+        });
 
-            hashChangeHandler(window.location.hash);
-            taistUtils.wait.hashChange(hashChangeHandler);
+        // Save Master object to global
+        window[constants.NS_NAME] = Master;
 
-            taistUtils.wait.once(isAppReady, function () {
-                log('Интерфейс МойСклад готов');
-                _initAddons();
-            }, 1000);
-        }
-    };
+        // Bind jQuery
+        Backbone.$ = $;
 
-});
+        // Router
+        router = new Router();
+
+        _.extend(router, Backbone.Events, {
+            log: log
+        });
+
+        // Start
+        Backbone.history.start();
+
+        return Master;
+    },
+
+    getInstance: function () {
+        return window[constants.NS_NAME];
+    }
+
+
+};

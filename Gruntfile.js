@@ -7,8 +7,6 @@ module.exports = function (grunt) {
         '<%= grunt.template.today("yyyy-mm-dd") %> - <%= pkg.author %> */\n'
     ].join('');
  
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-webmake');
@@ -20,14 +18,14 @@ module.exports = function (grunt) {
         webmake: {
             dist: {
                 files: {
-                    'dist/master/master.js': ['src/js/master.js']
+                    'dist/moysklad-master.js': ['src/js/addon.js']
                 }
-            },
+            }/*,
             dev: {
                 files: {
                     'dist/dev/dev.js': ['src/js/dev.js']
                 }
-            }
+            }*/
         },
  
         concat: {
@@ -36,14 +34,14 @@ module.exports = function (grunt) {
                     banner: BANNER
                 },
                 files: {
-                    'dist/master/master.css': [
+                    'dist/moysklad-master.css': [
                         'src/css/addon.css',
                         'vendor/superfish/superfish.css'
                     ]
                 }
                 /*src: COMMON_MODULE_LIST.concat(DIST_MODULE_LIST),
                 dest: 'dist/master/master.js'*/
-            },
+            }/*,
             dev: {
                 options: {
                     banner: BANNER
@@ -54,7 +52,7 @@ module.exports = function (grunt) {
                         'vendor/superfish/superfish.css'
                     ]
                 }
-            }
+            }*/
         },
  
         uglify: {
@@ -70,30 +68,8 @@ module.exports = function (grunt) {
             options: {
                 banner: BANNER
             }
-        },
- 
-        jasmine : {
-            src : [
-                'dist/moysklad-client.js', //'src/**/*.js',
-                'vendor/**/*.js'
-            ],
-            options : {
-                specs : 'test/spec/**/*spec.js',
-                helpers : 'test/specs/helpers/*.js'
-            }
-        },
- 
-        jshint: {
-            all_files: [
-                'grunt.js',
-                //sub('src/%s.!(intro|outro|const)*.js'),
-                'vendor'
-            ],
-            options: {
-                jshintrc: '.jshintrc'
-            }
         }
- 
+
     });
  
  
@@ -102,23 +78,27 @@ module.exports = function (grunt) {
         'uglify:dist',
         'concat:dev'
     ]);
- 
+
+    /*
     grunt.registerTask('dev', [
         'webmake:dev',
         'concat:dev'
     ]);
- 
+    */
+
     grunt.registerTask('dist', [
         'webmake:dist',
         'concat:dist'
     ]);
- 
+
+    /*
     grunt.registerTask('all', [
         'webmake:dev',
         'concat:dev',
         'webmake:dist',
         'concat:dist'
     ]);
+    */
  
 };
 
