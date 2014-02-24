@@ -10,7 +10,8 @@ var Master = require('./master'),
 module.exports = (function () {
     var taistUtils = null,
         log = null,
-        Router, router;
+        Router, router,
+        moysklad;
 
 
     return {
@@ -27,10 +28,12 @@ module.exports = (function () {
 
             log(constants.ADDON_NAME + ' addon is starting ..');
 
-            var master = Master.createMaster({
+            moysklad = Master.createMaster({
                 utils: taistUtils,
                 entryPoint: entryPoint
             });
+
+            moysklad.app.history.start();
 
             //
 

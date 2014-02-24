@@ -17,8 +17,8 @@
   "dependencies": {
     "lodash": "~2.4.1",
     "backbone": "~1.1.0",
-    "domo": "~0.5.9",
     "stampit": "~0.6.1",
-    "sprintf-js": "0.0.7"
+    "sprintf-js": "0.0.7",
+    "domjs": "~0.2.3"
   }
 }

@@ -7,7 +7,14 @@
 var _ = require('lodash'),
     Backbone = require('backbone');
 
+// Private
+//
+
+var _routeInfo;
+
+
 // Router
+//
 
 var Router = Backbone.Router.extend({
 
@@ -39,29 +46,48 @@ var Router = Backbone.Router.extend({
         }
 
         function extractQueryParams(hashSection, sectionType) {
-            var match = that.queryPattern.exec(hashSection);
-            if (match && match.length == 4) {
-                routeInfo[sectionType] = match[1];
-                _.extend(routeInfo.query, parseQueryString(match[3]));
+            if (hashSection) {
+                var match = that.queryPattern.exec(hashSection);
+                if (match && match.length == 4) {
+                    routeInfo[sectionType] = match[1];
+                    _.extend(routeInfo.query, parseQueryString(match[3]));
+                } else {
+                    routeInfo[sectionType] = hashSection;
+                }
             } else {
-                routeInfo[sectionType] = hashSection;
+                routeInfo[sectionType] = null;
             }
         }
 
         extractQueryParams(section, 'section');
         extractQueryParams(action, 'action');
 
-        var routeInfoMsg = [
-            'Router event:',
-            'section=' + routeInfo.section,
-            'action=' + routeInfo.action,
-            '  QueryString:'
-        ];
-        _.forOwn(routeInfo.query, function (queryItem, key) {
-            routeInfoMsg.push(key + '=' + queryItem);
-        });
+        _routeInfo = routeInfo;
+        _routeInfo.name = this.getRouteName();
 
+        // [ Debug message --
+        var routeInfoMsg = [
+            'Router:',
+            'Event: "' + this.getRouteName() + '"'
+        ];
+        var qItems = ['Query: '];
+        _.forOwn(routeInfo.query, function (queryItem, key) {
+            qItems.push('  ' + key + '=' + queryItem);
+        });
+        if (qItems.length > 1) routeInfoMsg = routeInfoMsg.concat(qItems);
         this.log.debug(routeInfoMsg.join('\n'));
+        // -- Debug message ]
+
+        this.trigger(this.getRouteName(), _routeInfo, this);
+        this.trigger('route:moysklad', _routeInfo, this);
+    },
+
+    getRouteName: function () {
+        return _routeInfo.section + (_routeInfo.action ? '/' + _routeInfo.action : '');
+    },
+
+    getRouteInfo: function () {
+        return _routeInfo;
     }
 
 });

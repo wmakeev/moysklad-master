@@ -86,7 +86,7 @@ module.exports = function (grunt) {
     ]);
     */
 
-    grunt.registerTask('dist', [
+    grunt.registerTask('default', [
         'webmake:dist',
         'concat:dist'
     ]);
