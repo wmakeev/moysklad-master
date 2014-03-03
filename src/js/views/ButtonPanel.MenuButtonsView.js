@@ -1,5 +1,5 @@
 /**
- * ButtonPanel.MenuButtonsGroupView
+ * ButtonPanel.MenuButtonsView
  * Vitaliy V. Makeev
  * w.makeev@gmail.com
  * Date: 07.01.14
@@ -8,15 +8,14 @@
 var _ = require('lodash'),
     Backbone = require('backbone');
 
-var master = require('../master').getInstance();
+var master = require('../master').getInstance(),
+    router;
 
 // Models
 var MenuButtonsCollection = require('../collections/ButtonPanel.MenuButtonsCollection.js');
 
 // Views
 var MenuButtonView = require('./ButtonPanel.MenuButtonView.js');
-
-var id_prefix = 'ma_buttonpanel_';
 
 // MenuBar View
 var MenuButtonsView = Backbone.View.extend({
@@ -25,17 +24,19 @@ var MenuButtonsView = Backbone.View.extend({
 
     attributes: function () {
         return {
-            id: id_prefix + this.cid,
             align: 'left',
             style: 'vertical-align: top;'
         }
     },
 
     initialize: function () {
-        _.bindAll(this, 'render', 'addMenu', 'ensureAppended');
+        _.bindAll(this, 'render', 'addMenu', 'removeMenu');
+
+        router = master.app.router;
 
         this.collection = new MenuButtonsCollection();
         this.collection.on('add', this.addMenu);
+        this.collection.on('remove', this.removeMenu);
 
         this.render();
     },
@@ -53,38 +54,67 @@ var MenuButtonsView = Backbone.View.extend({
         }, this);
 
         // Ensure menu panel appended for each suitable place
-        this.ensureAppended();
-
-        return this;
-    },
-
-    addMenu: function (menuModel) {
-        if (this.collection.length > 1) {
-            $('>table', this.el).addClass('b-air-button-panel-many');
-        }
-        var menuView = new MenuButtonView({
-            model: menuModel,
-            className: 'menu' + (this.collection.at(0) === menuModel ? ' first' : '')
-        });
-        $('tr.menu_bar', this.el).append(menuView.render().el);
-    },
-
-    // Ensure menu panel appended for each suitable place
-    ensureAppended: function () {
-        var that = this;
-
+        // Слушаем событие появления панели с кнопками
         master.on('UI:ButtonPanel', function ($selector) {
-            var routeName = master.app.router.getRouteName();
-            if ($selector.filter('#' + id_prefix + that.cid).length == 0) {
+            if ($selector.filter('#ma_id_' + that.cid).length == 0) {
                 $selector
                     .filter(function () {
                         return $('.b-air-button-panel', this).length > 0;
                     })
                     .filter(':last')
                     .after(that.el);
-                console.debug('ButtonPanel.MenuButtonView appended to page "' + routeName + '"'); //DEBUG log
+                console.debug('ButtonPanel.MenuButtonView appended to page "' + router.getRouteName() + '"'); //DEBUG log
             }
         });
+
+        return this;
+    },
+
+    // Обновляет список меню при скрытии и отображении кнопок
+    refresh: function () {
+        var $table = $('>table', this.el),
+            $menus = $table.find('.menu_bar .menu');
+
+        $menus.length > 1 ?
+            $table.addClass('b-air-button-panel-many') :
+            $table.removeClass('b-air-button-panel-many');
+
+        $menus.each(function (index) {
+            index === 0 ?
+                $(this).addClass('first') :
+                $(this).removeClass('first');
+        });
+    },
+
+    addMenu: function (menuModel) {
+        var that = this;
+
+        // Создаем кнопку меню
+        var menuView = new MenuButtonView({
+            model: menuModel,
+            id: 'ma_id_' + menuModel.cid,
+            className: 'menu'
+        });
+        menuView.render();
+
+        router.on('route:moysklad', function (routeName) {
+            //debugger;
+            //TODO menuModel.get('bindRoutes')?
+            var bindRoutes = menuModel.get('bindRoutes');
+            if (bindRoutes == '*' || bindRoutes.indexOf(routeName) != -1) {
+                $('tr.menu_bar', that.el).append(menuView.el);
+            } else {
+                menuView.$el.detach();
+            }
+            that.refresh();
+        });
+
+        return menuView;
+    },
+
+    removeMenu: function (menuModel) {
+        $(this.el).remove('#ma_id_' + this.model.cid);
+        console.log('removed ' + this.model.cid);
     }
 
 });

@@ -79,7 +79,8 @@ var Router = Backbone.Router.extend({
         // -- Debug message ]
 
         this.trigger(this.getRouteName(), _routeInfo, this);
-        this.trigger('route:moysklad', _routeInfo, this);
+        // for listeners listen to all Moysklad route changes
+        this.trigger('route:moysklad', this.getRouteName());
     },
 
     getRouteName: function () {

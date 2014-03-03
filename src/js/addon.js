@@ -28,14 +28,13 @@ module.exports = (function () {
 
             log(constants.ADDON_NAME + ' addon is starting ..');
 
-            moysklad = Master.createMaster({
+            Master.createMaster({
                 utils: taistUtils,
                 entryPoint: entryPoint
+            }, function (err, moysklad) {
+                if (err) throw err;
+                moysklad.app.history.start();
             });
-
-            moysklad.app.history.start();
-
-            //
 
         }
     };

@@ -10,29 +10,6 @@ var _ = require('lodash'),
 
 var PopupMenuItemView = require('./PopupMenuItemView');
 
-var setClickOutsideCheck = function (obj) {
-    var elMenuButton = obj.menuButton.el;
-    $(document).bind('mousedown.ma-popup', function (e) {
-        $(document).unbind('mousedown.ma-popup');
-        var el = e.target;
-        var popup = $('.ma-popup:visible')[0];
-        if (popup == undefined) return true;
-
-        while (true) {
-            if (el == popup) {
-                return true;
-            } else if (el == elMenuButton) {
-                return true;
-            } else if (el == document) {
-                $('.ma-popup').css('visibility', 'hidden');
-                return false;
-            } else {
-                el = $(el).parent()[0];
-            }
-        }
-    });
-};
-
 
 var PopupMenuItemsView = Backbone.View.extend({
 
@@ -40,7 +17,7 @@ var PopupMenuItemsView = Backbone.View.extend({
 
     attributes: {
         class: 'popup-button-popup popup-button-popup-menu ma-popup',
-        style: 'left: 550px; top: 200px; z-index: 20; visibility: hidden; position: absolute; overflow: visible;'
+        style: 'left: 550px; top: 200px; z-index: 20; position: absolute; overflow: visible;'
     },
 
     events: {
@@ -64,7 +41,7 @@ var PopupMenuItemsView = Backbone.View.extend({
     },
 
     isVisible: function () {
-        return this.$el.css('visibility') === 'visible';
+        return this.$el.is(':visible');
     },
 
     render: function () {
@@ -72,12 +49,13 @@ var PopupMenuItemsView = Backbone.View.extend({
             elTemplate;
 
         elTemplate = require('../templates/PopupMenuItemsTmpl');
-        $(this.el).append(elTemplate.build());
+        this.$el.append(elTemplate.build());
 
         _(this.collection.models).each(function (menuItemModel) {
             that.appendItem(menuItemModel);
         }, this);
 
+        this.$el.hide();
 
         return this;
     },
@@ -104,23 +82,45 @@ var PopupMenuItemsView = Backbone.View.extend({
     },
 
     show: function () {
-        setClickOutsideCheck({
-            menuButton: this.menuButton
+        var that = this;
+
+        // Проверка на клик за пределами меню
+        $(document).bind('mousedown.ma-popup', function (e) {
+            $(document).unbind('mousedown.ma-popup');
+            var el = e.target;
+            var popup = $('.ma-popup:visible')[0];
+            if (popup) {
+                while (true) {
+                    if (el == popup) {
+                        // клик внутри меню
+                        break;
+                    } else if (el == that.menuButton.el) {
+                        // клик по кнопке этого меню
+                        break;
+                    } else if (el == document) {
+                        // клик за пределами меню
+                        $('.ma-popup').hide();
+                        break;
+                    } else {
+                        el = $(el).parent()[0];
+                    }
+                }
+            }
         });
 
         var menuOffset = this.menuButton.$el.offset(),
             menuHeight = this.menuButton.getHeight();
 
-        this.$el.offset({
-            top: menuOffset.top + menuHeight + 2,
-            left: menuOffset.left
-        });
-
-        this.$el.css('visibility', 'visible');
+        this.$el
+            .show()
+            .offset({
+                top: menuOffset.top + menuHeight + 2,
+                left: menuOffset.left
+            });
     },
 
     hide: function () {
-        this.$el.css('visibility', 'hidden');
+        this.$el.hide();
     }
 });
 

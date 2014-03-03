@@ -7,7 +7,9 @@
 
 var _ = require('lodash'),
     Backbone = require('backbone'),
-    router = require('../master').getInstance().app.router;
+    master = require('../master'),
+    router;
+
 
 var PopupMenuItemsView = require('./PopupMenuItemsView');
 
@@ -15,9 +17,11 @@ var MenuButtonView = Backbone.View.extend({
 
     tagName: 'td',
 
-    attributes: {
-        align: 'left',
-        style: 'vertical-align: top;'
+    attributes: function () {
+        return {
+            align: 'left',
+            style: 'vertical-align: top;'
+        }
     },
 
     events: {
@@ -26,19 +30,14 @@ var MenuButtonView = Backbone.View.extend({
 
     initialize: function () {
         var that = this;
+        router = master.getInstance().app.router;
 
-        _.bindAll(this, 'render', 'unrender', 'remove', 'clickHandler'); //, 'show', 'hide');
+        //this.id_prefix = 'ma_menubutton_';
+
+        _.bindAll(this, 'render', 'unrender', 'remove', 'clickHandler', 'show', 'hide');
 
         //this.model.bind('change', this.render); //TODO Пока не подписываемся на изменения
         //this.model.bind('remove', this.unrender);
-
-        if (that.model.bindRoutes instanceof Array) {
-            router.on('route:moysklad', function (routeInfo) {
-                that.model.bindRoutes.indexOf(routeInfo.name) == -1 ?
-                    that.hide() :
-                    that.show();
-            });
-        }
     },
 
     render: function () {
@@ -51,7 +50,6 @@ var MenuButtonView = Backbone.View.extend({
         this.popupMenuItemsView = new PopupMenuItemsView({
             collection: this.model.menuItems
         });
-
         // link this menu button view to related menu items list view
         this.popupMenuItemsView.menuButton = this;
 
@@ -81,15 +79,15 @@ var MenuButtonView = Backbone.View.extend({
 
     //TODO Вынести методы управления видимостью в отдельный родительский класс
     isVisible: function () {
-        return this.$el.css('display') != 'none';
+        return $.contains(document, this.el)
     },
 
     show: function () {
-        this.$el.css('display', 'block');
+        throw 'show not implemented';
     },
 
     hide: function () {
-        this.$el.css('display', 'none');
+        throw 'hide not implemented';
     }
 
 });

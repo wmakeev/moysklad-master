@@ -7,7 +7,7 @@
 var _           = require('lodash'),
     Backbone    = require('backbone'),
     master      = require('../master').getInstance(),
-    router      = master.app.router;
+    router;
 
 
 // PopupMenuItem
@@ -22,6 +22,7 @@ var PopupMenuItemView = Backbone.View.extend({
 
     initialize: function () {
         var that = this;
+        router = master.app.router;
 
         _.bindAll(this, 'render'); //, 'unrender', 'remove');
 
@@ -29,13 +30,11 @@ var PopupMenuItemView = Backbone.View.extend({
         //this.model.bind('remove', this.unrender);
 
         var bindRoutes = that.model.get('bindRoutes');
-        if (bindRoutes instanceof Array) {
-            router.on('route:moysklad', function (routeInfo) {
-                bindRoutes.indexOf(routeInfo.name) == -1 ?
-                    that.hide() :
-                    that.show();
-            });
-        }
+        router.on('route:moysklad', function (routeName) {
+            !bindRoutes || (bindRoutes == '*' || bindRoutes.indexOf(routeName) != -1) ?
+                that.show() :
+                that.hide();
+        });
     },
 
     render: function () {
@@ -43,7 +42,6 @@ var PopupMenuItemView = Backbone.View.extend({
             elTempl;
 
         elTempl = require('../templates/PopupMenuItemTmpl');
-        //TODO Правильно ли использовать append для обновления на onChange?
         $(this.el)
             .append(elTempl.build(this.model))
             .bind('click', function () {
@@ -63,15 +61,17 @@ var PopupMenuItemView = Backbone.View.extend({
 
     //TODO Вынести методы управления видимостью в отдельный родительский класс
     isVisible: function () {
-        return this.$el.css('display') != 'none';
+        return this.$el.is(':visible'); //this.$el.css('display') != 'none';
     },
 
     show: function () {
-        this.$el.css('display', 'block');
+        //console.log('Показываем ' + this.model.get('name')); //DEBUG log
+        this.$el.show(); //.css('display', 'block');
     },
 
     hide: function () {
-        this.$el.css('display', 'none');
+        //console.log('Прячем ' + this.model.get('name')); //DEBUG log
+        this.$el.hide(); //('display', 'none');
     }
 
 });

@@ -45,7 +45,7 @@ var MenuButton = Backbone.Model.extend({
                 .uniq().value();
         }
 
-        this.bindRoutes = data.bindRoutes[0] == '*' ? '*' : data.bindRoutes;
+        this.set('bindRoutes', data.bindRoutes[0] == '*' ? '*' : data.bindRoutes);
 
         return _.omit(data, [
             'items',

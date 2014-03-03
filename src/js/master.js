@@ -11,7 +11,7 @@ var _ = require('lodash'),
 
 var Logger = require('./logger'),
     Router = require('./router'),
-    //appender = require('./appender'),
+//appender          = require('./appender'),
     selectors = require('./selectors');
 
 var moysklad = {
@@ -26,10 +26,10 @@ var moysklad = {
 var appendMenu = function (menus) {
 
     /*var appendersForTargets = appender.getAppendersForTargets(
-        'ButtonPanel.MenuButtonsView',
-        menus.bind,
-        buttonMenu.el
-    );*/
+     'ButtonPanel.MenuButtonsView',
+     menus.bind,
+     buttonMenu.el
+     );*/
 
     console.debug('appendersForTargets:'); //TODO **DEBUG**
     console.debug(appendersForTargets);
@@ -92,24 +92,6 @@ function _initExtensions(extensions) {
     }
 }
 
-//TODO Refractor: move to external file
-function _uiEventTrigger(blockName) {
-    // - generating events on button panel palceholder avaliable
-    router.once('route:moysklad', function (routeInfo, router) {
-        var $selector;
-        setTimeout(utils.wait.once(
-            function () {
-                $selector = selectors[blockName]();
-                return $selector.length > 0;
-            },
-            function () {
-                moysklad.trigger('UI:' + blockName, $selector);
-                _uiEventTrigger(blockName)
-            }, 1000),
-        2000);
-    });
-}
-
 // Public
 //
 
@@ -157,6 +139,29 @@ function requireLib(name) {
     //return require(name);
 }
 
+/**
+ * Формирует события когда становится доступнной разметка указанного блока
+ * @param blockName Назване блока которому соответствует некоторая html-разметка
+ * @private
+ */
+function _moyskladUiBlockEventTrigger(blockName) {
+    var $selector;
+    // После
+    setTimeout(utils.wait.once(
+        function () {
+            $selector = selectors[blockName]();
+            return $selector.length > 0;
+        },
+        function () {
+            // trigger event if block is avaliable
+            moysklad.trigger('UI:' + blockName, $selector);
+            router.once('route:moysklad', function () {
+                _moyskladUiBlockEventTrigger(blockName);
+            });
+        }, 1000),
+        2000); // wait for main ui changed
+}
+
 
 module.exports = {
 
@@ -165,7 +170,9 @@ module.exports = {
      * @param {{ utils: Obj, entryPoint: String}} opt
      * @returns {{initialized: boolean}}
      */
-    createMaster: function (opt) {
+    createMaster: function (opt, callback) {
+
+        //debugger;
         // export addon global namespace
         window[constants.NS_NAME] = moysklad;
 
@@ -191,61 +198,66 @@ module.exports = {
         router = moysklad.app.router = new Router();
         _.extend(moysklad.app.router, Backbone.Events, { log: log }); //TODO remove log
 
-
         //Init base master addon Views
         // - default button menu panel
-        var ButtonPanelMenu = require('./views/ButtonPanel.MenuButtonsView'),
-            buttonPanelMenu = new ButtonPanelMenu(); // {id: 'ma_button_panel_default'}
+        var blockName = 'ButtonPanel',
+            MenuButtonModel = require('./models/ButtonPanel.MenuButtonModel'),
+            ButtonPanelMenuView = require('./views/ButtonPanel.MenuButtonsView'),
+            buttonPanelMenuView = new ButtonPanelMenuView(); // {id: 'ma_button_panel_default'}
 
         utils.userData.get('masterMenuDescription', function (err, result) {
-            if (err) throw err;
+            if (err) return callback(err);
 
-            ////
+            //////
             // Retrive menu defenition from google script
             log('Retrive menu data by script [' + result.scriptId + ']'); //DEBUG log
-            var host        = 'https://script.google.com',
-                scriptId    = result.scriptId,
-                path        = '/macros/s/' + scriptId + '/exec';
+
+            var host = 'https://script.google.com',
+                scriptId = result.scriptId,
+                path = '/macros/s/' + scriptId + '/exec';
+
             utils.proxy.get(host, path, function (err, result) {
-                if (err) throw err;
+                if (err) return callback(err);
+
                 if (result) {
                     if (result.error) throw result.error;
                     if (result.statusCode == 200) {
+                        //console.log(result.body); //DEBUG log
                         var menuObj = JSON.parse(result.body);
                         console.log(menuObj); //DEBUG log
 
-                        ////
-                        //Add button with linked popup list to panel
-                        //var menus = require('menu/customerorder/edit');
+                        // Создаем пользовательские меню по полученным описаниям
                         _(menuObj).each(function (menu) {
-                            buttonPanelMenu.collection.add(menu, { parse: true });
+                            buttonPanelMenuView.collection.add(menu, { parse: true });
                         });
-                        moysklad.app.views.push(buttonPanelMenu);
-                        //TODO Bug: Аддон не активируется на первой странице (нужно подумать над событийной моделью)
-                        _uiEventTrigger('ButtonPanel');
-                        //
-                        ////
+
+                        //TODO Для каких целей?
+                        moysklad.app.views.push(buttonPanelMenuView);
+
+                        router.once('route:moysklad', function () {
+                            _moyskladUiBlockEventTrigger(blockName);
+                        });
+                            //
+                        //////
+
+                        moysklad.initialized = true;
+                        callback(null, moysklad);
 
                     } else {
                         throw new Error('Server error response code - ' + result.statusCode);
                     }
                 } else {
-                    throw new Error('Result response is undefined');
+                    return callback(new Error('createMaster: Result response is undefined'));
                 }
             });
-            //
-            ////
+                //
+            //////
+
         });
-
-
-
-        moysklad.initialized = true;
-        return moysklad;
     },
 
     getInstance: function () {
         return window[constants.NS_NAME];
     }
-
 
 };
