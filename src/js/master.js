@@ -140,7 +140,7 @@ function requireLib(name) {
 }
 
 /**
- * Формирует события когда становится доступнной разметка указанного блока
+ * Возбуждает событие когда становится доступнной разметка указанного блока
  * @param blockName Назване блока которому соответствует некоторая html-разметка
  * @private
  */
@@ -223,17 +223,18 @@ module.exports = {
                     if (result.error) throw result.error;
                     if (result.statusCode == 200) {
                         //console.log(result.body); //DEBUG log
-                        var menuObj = JSON.parse(result.body);
-                        console.log(menuObj); //DEBUG log
+                        var masterInfo = JSON.parse(result.body);
+                        console.log(masterInfo); //DEBUG log
 
                         // Создаем пользовательские меню по полученным описаниям
-                        _(menuObj).each(function (menu) {
+                        _(masterInfo.ButtonPanel).each(function (menu) {
                             buttonPanelMenuView.collection.add(menu, { parse: true });
                         });
 
                         //TODO Для каких целей?
                         moysklad.app.views.push(buttonPanelMenuView);
 
+                        //
                         router.once('route:moysklad', function () {
                             _moyskladUiBlockEventTrigger(blockName);
                         });

@@ -8,6 +8,10 @@ module.exports = {
 
     'ButtonPanel': function () {
         return $('.b-editor-toolbar>tbody>tr>td');
+    },
+
+    'Apps': function () {
+        return $('.b-application-panel .b-apps');
     }
 
 };
