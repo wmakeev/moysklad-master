@@ -216,13 +216,14 @@ module.exports = {
                 scriptId = result.scriptId,
                 path = '/macros/s/' + scriptId + '/exec';
 
-            utils.proxy.get(host, path, function (err, result) {
+            utils.proxy.jQueryAjax(host, path, {}, function (err, result) {
                 if (err) return callback(err);
 
                 if (result) {
+                    console.log(result); //DEBUG log
                     if (result.error) throw result.error;
                     if (result.statusCode == 200) {
-                        //console.log(result.body); //DEBUG log
+
                         var masterInfo = JSON.parse(result.body);
                         console.log(masterInfo); //DEBUG log
 
