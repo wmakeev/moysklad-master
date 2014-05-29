@@ -45,6 +45,8 @@ var MenuButtonsView = Backbone.View.extend({
         var that = this,
             menuBarTemplate;
 
+        //debugger; //TODO DEBUG
+
         menuBarTemplate = require('../templates/ButtonPanel.MenuButtonsTmpl');
 
         $(this.el).append(menuBarTemplate.build());
@@ -56,6 +58,7 @@ var MenuButtonsView = Backbone.View.extend({
         // Ensure menu panel appended for each suitable place
         // Слушаем событие появления панели с кнопками
         master.on('UI:ButtonPanel', function ($selector) {
+            //debugger; //TODO DEBUG
             if ($selector.filter('#ma_id_' + that.cid).length == 0) {
                 $selector
                     .filter(function () {
@@ -98,7 +101,7 @@ var MenuButtonsView = Backbone.View.extend({
         menuView.render();
 
         router.on('route:moysklad', function (routeName) {
-            //debugger;
+            //debugger; //TODO DEBUG
             //TODO menuModel.get('bindRoutes')?
             var bindRoutes = menuModel.get('bindRoutes');
             if (bindRoutes == '*' || bindRoutes.indexOf(routeName) != -1) {

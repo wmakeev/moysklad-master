@@ -44,6 +44,8 @@ var MenuButtonView = Backbone.View.extend({
         var that = this,
             menuButtonTempl;
 
+        //debugger; //TODO DEBUG
+
         menuButtonTempl = require('../templates/ButtonPanel.MenuButtonTmpl');
         $(this.el).append(menuButtonTempl.build(this.model));
 

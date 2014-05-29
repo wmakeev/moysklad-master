@@ -7,36 +7,32 @@
 var Master = require('./master'),
     constants = require('./const');
 
-module.exports = (function () {
-    var taistUtils = null,
-        log = null,
-        Router, router,
-        moysklad;
+var taistUtils = null,
+    log = null,
+    Router, router,
+    moysklad;
 
+module.exports = {
 
-    return {
+    start: function (utilities, entryPoint) {
 
-        start: function (utilities, entryPoint) {
+        taistUtils = utilities;
+        log = taistUtils.log;
 
-            taistUtils = utilities;
-            log = taistUtils.log;
-
-            if (Master.getInstance()) {
-                log(constants.ADDON_NAME + ' already initialized.');
-                return;
-            }
-
-            log(constants.ADDON_NAME + ' addon is starting ..');
-
-            Master.createMaster({
-                utils: taistUtils,
-                entryPoint: entryPoint
-            }, function (err, moysklad) {
-                if (err) throw err;
-                moysklad.app.history.start();
-            });
-
+        if (Master.getInstance()) {
+            log(constants.ADDON_NAME + ' already initialized.');
+            return;
         }
-    };
 
-});
+        log(constants.ADDON_NAME + ' addon is starting ..');
+
+        Master.createMaster({
+            utils: taistUtils,
+            entryPoint: entryPoint
+        }, function (err, moysklad) {
+            if (err) throw err;
+            moysklad.app.history.start();
+        });
+
+    }
+};

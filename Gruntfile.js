@@ -9,23 +9,32 @@ module.exports = function (grunt) {
  
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-webmake');
- 
+    grunt.loadNpmTasks('grunt-browserify');
+
     grunt.initConfig({
  
         pkg: grunt.file.readJSON('package.json'),
- 
-        webmake: {
-            dist: {
-                files: {
-                    'dist/moysklad-master.js': ['src/js/addon.js']
+
+        browserify: {
+
+            addon: {
+                src: ['src/js/addon.js'],
+                dest: 'dist/moysklad-master.js',
+                options: {
+                    alias: [
+                        './src/js/addon.js:addon',
+                        './node_modules/lodash/dist/lodash.min.js:lodash',
+                        './node_modules/lodash/dist/lodash.min.js:underscore',
+                        './node_modules/backbone/backbone-min.js:backbone'
+                        //'./node_modules/moment/min/moment.min.js:moment'
+                    ],
+                    // wrapp as Taist addon
+                    postBundleCB: function (err, src, next) {
+                        src = 'function init(){var ' + src + ';return require("addon")}';
+                        next(err, src)
+                    }
                 }
-            }/*,
-            dev: {
-                files: {
-                    'dist/dev/dev.js': ['src/js/dev.js']
-                }
-            }*/
+            }
         },
  
         concat: {
@@ -87,8 +96,8 @@ module.exports = function (grunt) {
     */
 
     grunt.registerTask('default', [
-        'webmake:dist',
-        'concat:dist'
+        'browserify:addon'
+        //'concat:dist'
     ]);
 
     /*

@@ -227,6 +227,7 @@ module.exports = {
                         var masterInfo = JSON.parse(result.body);
                         console.log(masterInfo); //DEBUG log
 
+                        //debugger; //TODO DEBUG
                         // Создаем пользовательские меню по полученным описаниям
                         _(masterInfo.ButtonPanel).each(function (menu) {
                             buttonPanelMenuView.collection.add(menu, { parse: true });
