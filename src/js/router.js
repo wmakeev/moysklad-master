@@ -19,14 +19,18 @@ var _routeInfo;
 var Router = Backbone.Router.extend({
 
     routes: {
-        ':section(/:action)': 'routeHandler'
+        ':section(/:action)(?:query)': 'routeHandler'
     },
 
     queryPattern: /([\w-]+)(\?(.+))?/,
 
-    routeHandler: function (section, action) {
+    routeHandler: function (section, action, query) {
+
+        //console.log(arguments); //TODO DEBUG
 
         var routeInfo = {
+                section: section,
+                action: action,
                 query: {}
             },
             that = this;
@@ -42,9 +46,10 @@ var Router = Backbone.Router.extend({
                     }
                 });
             }
-            return queryParams;
+            _.extend(routeInfo.query, queryParams);
         }
 
+/*
         function extractQueryParams(hashSection, sectionType) {
             if (hashSection) {
                 var match = that.queryPattern.exec(hashSection);
@@ -58,14 +63,18 @@ var Router = Backbone.Router.extend({
                 routeInfo[sectionType] = null;
             }
         }
+*/
 
-        extractQueryParams(section, 'section');
-        extractQueryParams(action, 'action');
+        /*extractQueryParams(section, 'section');
+        extractQueryParams(action, 'action');*/
+
+        parseQueryString(query);
 
         _routeInfo = routeInfo;
         _routeInfo.name = this.getRouteName();
 
-        // [ Debug message --
+        //// [ Debug message --
+        //
         var routeInfoMsg = [
             'Router:',
             'Event: "' + this.getRouteName() + '"'
@@ -76,7 +85,8 @@ var Router = Backbone.Router.extend({
         });
         if (qItems.length > 1) routeInfoMsg = routeInfoMsg.concat(qItems);
         this.log.debug(routeInfoMsg.join('\n'));
-        // -- Debug message ]
+        //
+        //// -- Debug message ]
 
         this.trigger(this.getRouteName(), _routeInfo, this);
         // for listeners listen to all Moysklad route changes

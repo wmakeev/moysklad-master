@@ -7,7 +7,7 @@
 
 var _ = require('lodash'),
     Backbone = require('backbone'),
-    getAction = require('../actionsAppenders');
+    actionsAppenders = require('../actionsAppenders');
 
 var PopupMenuItemsCollection = require('../collections/PopupMenuItemsCollection');
 
@@ -23,8 +23,9 @@ var MenuButton = Backbone.Model.extend({
             //TODO Подумать
             // Восстанавливаем метод действия меню из описания
             //debugger;
+            var actionsAppenderFactory = actionsAppenders[item.actionInfo.type];
             if (item.actionInfo) {
-                item.action = getAction[item.actionInfo.type](item.actionInfo)
+                item.action = actionsAppenderFactory(item.actionInfo)
             }
         });
 

@@ -11,8 +11,9 @@ var _ = require('lodash'),
 
 var Logger = require('./logger'),
     Router = require('./router'),
-//appender          = require('./appender'),
-    selectors = require('./selectors');
+    //appender          = require('./appender'),
+    selectors = require('./selectors'),
+    tools = require('./tools');
 
 var moysklad = {
         initialized: false
@@ -97,12 +98,10 @@ function _initExtensions(extensions) {
 
 var app = {
 
+    tools: tools,
     views: [],
-
     history: Backbone.history,
-
     router: {},
-
     requireLib: requireLib,
 
     add: function (type, model) {
@@ -129,9 +128,7 @@ var app = {
     },
 
     appendMenu: appendMenu,
-
     testMenu: testMenu
-
 };
 
 function requireLib(name) {
@@ -145,21 +142,30 @@ function requireLib(name) {
  * @private
  */
 function _moyskladUiBlockEventTrigger(blockName) {
+
     var $selector;
-    // После
-    setTimeout(utils.wait.once(
-        function () {
-            $selector = selectors[blockName]();
-            return $selector.length > 0;
-        },
-        function () {
-            // trigger event if block is avaliable
-            moysklad.trigger('UI:' + blockName, $selector);
-            router.once('route:moysklad', function () {
-                _moyskladUiBlockEventTrigger(blockName);
-            });
-        }, 1000),
-        2000); // wait for main ui changed
+
+    // Запускает ожидание проверки на наличие блока по указанному селектору
+    var waitForSelector = function () {
+        utils.wait.once(
+            function () {
+                $selector = selectors[blockName]();
+                //console.debug('moyskladUiBlockEventTrigger: trying to find [' + blockName + ']');
+                //console.debug($selector);
+                return $selector.length > 0;
+            },
+            function () {
+                // trigger event if block is avaliable
+                console.debug('UI:' + blockName + ' is available');
+                moysklad.trigger('UI:' + blockName, $selector);
+                router.once('route:moysklad', function () {
+                    _moyskladUiBlockEventTrigger(blockName);
+                });
+            }, 1000
+        )
+    };
+
+    setTimeout(waitForSelector, 1500); // wait for main ui changed
 }
 
 
@@ -225,7 +231,7 @@ module.exports = {
                     if (result.statusCode == 200) {
 
                         var masterInfo = JSON.parse(result.body);
-                        console.log(masterInfo); //DEBUG log
+                        //console.log(masterInfo);
 
                         //debugger; //TODO DEBUG
                         // Создаем пользовательские меню по полученным описаниям

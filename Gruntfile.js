@@ -82,11 +82,11 @@ module.exports = function (grunt) {
     });
  
  
-    grunt.registerTask('build', [
+    /*grunt.registerTask('build', [
         'concat:dist',
         'uglify:dist',
         'concat:dev'
-    ]);
+    ]);*/
 
     /*
     grunt.registerTask('dev', [
