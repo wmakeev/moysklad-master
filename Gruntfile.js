@@ -44,70 +44,18 @@ module.exports = function (grunt) {
                 },
                 files: {
                     'dist/moysklad-master.css': [
-                        'src/css/addon.css',
-                        'vendor/superfish/superfish.css'
+                        'src/css/addon.css'
                     ]
                 }
-                /*src: COMMON_MODULE_LIST.concat(DIST_MODULE_LIST),
-                dest: 'dist/master/master.js'*/
-            }/*,
-            dev: {
-                options: {
-                    banner: BANNER
-                },
-                files: {
-                    'dist/dev/dev.css': [
-                        'src/css/addon.css',
-                        'vendor/superfish/superfish.css'
-                    ]
-                }
-            }*/
-        },
- 
-        uglify: {
-            dist: {
-                files: (function () {
-                    // Using an IIFE so that the destination property name can be
-                    // created dynamically with sub().
-                    //var obj = {};
-                    //obj[sub('dist/%s.min.js')] = [sub('dist/%s.js')];
-                    //return obj;
-                }())
-            },
-            options: {
-                banner: BANNER
             }
         }
 
     });
- 
- 
-    /*grunt.registerTask('build', [
-        'concat:dist',
-        'uglify:dist',
-        'concat:dev'
-    ]);*/
-
-    /*
-    grunt.registerTask('dev', [
-        'webmake:dev',
-        'concat:dev'
-    ]);
-    */
 
     grunt.registerTask('default', [
         'browserify:addon'
         //'concat:dist'
     ]);
-
-    /*
-    grunt.registerTask('all', [
-        'webmake:dev',
-        'concat:dev',
-        'webmake:dist',
-        'concat:dist'
-    ]);
-    */
  
 };
 

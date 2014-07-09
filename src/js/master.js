@@ -93,15 +93,25 @@ function _initExtensions(extensions) {
     }
 }
 
+var _appendScript = function (url) {
+    var client_script = document.createElement('script');
+    client_script.setAttribute('src', url);
+    document.head.appendChild(client_script);
+    return this;
+};
+
 // Public
 //
 
 var app = {
 
     tools: tools,
-    views: [],
+    views: {
+        ButtonPanel: require('./views/ButtonPanel.MenuButtonsView')
+    },
     history: Backbone.history,
     router: {},
+    appendScript: _appendScript,
     requireLib: requireLib,
 
     add: function (type, model) {
@@ -207,8 +217,7 @@ module.exports = {
         //Init base master addon Views
         // - default button menu panel
         var blockName = 'ButtonPanel',
-            MenuButtonModel = require('./models/ButtonPanel.MenuButtonModel'),
-            ButtonPanelMenuView = require('./views/ButtonPanel.MenuButtonsView'),
+            ButtonPanelMenuView = moysklad.views.ButtonPanel,
             buttonPanelMenuView = new ButtonPanelMenuView(); // {id: 'ma_button_panel_default'}
 
         utils.userData.get('masterMenuDescription', function (err, result) {
@@ -238,9 +247,6 @@ module.exports = {
                         _(masterInfo.ButtonPanel).each(function (menu) {
                             buttonPanelMenuView.collection.add(menu, { parse: true });
                         });
-
-                        //TODO Для каких целей?
-                        moysklad.app.views.push(buttonPanelMenuView);
 
                         //
                         router.once('route:moysklad', function () {
