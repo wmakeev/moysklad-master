@@ -1,0 +1,9 @@
+{
+  "siteName": "МойСклад",
+  "siteRegexp": "online.moysklad.ru",
+  "id": "moysklad-master",
+  "js": "addon.js",
+  "title": "moysklad-master@0.0.4",
+  "shortDescription": "Управление модулями интерации МойСклад",
+  "description": "addon.md"
+}
