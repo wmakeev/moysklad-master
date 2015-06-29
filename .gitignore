@@ -1,5 +1,4 @@
-node_modules
 .idea
-some
-main.js
-properties.json
+node_modules/*
+!src/node_modules
+_some

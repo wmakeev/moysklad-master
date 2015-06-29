@@ -1,25 +1,17 @@
 {
-  "name": "addon-master.js",
-  "version": "0.0.3",
+  "name": "moysklad-master",
+  "version": "0.0.4",
   "author": "Vitaliy V. Makeev",
-  "description": "Masster addon library",
+  "description": "Управление модулями интерации МойСклад",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "multidep --taist-site-name МойСклад --taist-site-regexp online.moysklad.ru"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wmakeev/moysklad-master.git"
+    "url": "git+https://github.com/wmakeev/moysklad-master.git"
   },
-  "devDependencies": {
-    "browserify": "^4.1.5",
-    "grunt": "~0.4.0",
-    "grunt-browserify": "^2.1.0",
-    "grunt-contrib-concat": "~0.1.3",
-    "grunt-contrib-uglify": "~0.1.2",
-    "moysklad-client": "~0.2.2"
-  },
-  "dependencies": {
-    "lodash": "~2.4.1",
-    "backbone": "~1.1.0",
-    "stampit": "~0.6.1",
-    "sprintf-js": "0.0.7",
-    "domjs": "~0.2.3"
-  }
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
 }
