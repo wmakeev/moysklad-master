@@ -1,0 +1,9 @@
+{
+  "id": "ms-moysklad-master",
+  "shortDescription": "Предоставляет удобный интерфейс написания аддонов для МойСклад (https://github.com/wmakeev/moysklad-master).",
+  "siteName": "МойСклад",
+  "siteRegexp": "online.moysklad.ru",
+  "title": "[идет разработка] MoyskladMaster 0.0.3",
+  "js": "moysklad-master.js",
+  "description": "moysklad-master.md"
+}
